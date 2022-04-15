@@ -1,1 +1,1 @@
-# Applied-Statistics-R-HW
+Rrepository for the ITMO Applied Statistics course's homeworks
