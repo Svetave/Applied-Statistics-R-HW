@@ -1,0 +1,216 @@
+---
+title: "HW2 Milrud"
+author: "Svetlana Milrud"
+date: "14 04 2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Casino deck
+
+```{r}
+deck <- read.csv('~/Applied-Statistics-R-HW/deck.csv')
+head(deck,n=3)
+nrow(deck)
+```
+
+```{r}
+decks<-do.call("rbind",list (deck,deck,deck,deck))
+nrow(decks)
+```
+
+## Dialer's hand
+
+```{r}
+dealer_emp<-data.frame(face=character(),suit=character(), value=integer())
+```
+
+## Player's hand
+
+```{r}
+player_emp<-data.frame(face=character(),suit=character(), value=integer())
+```
+
+
+## Shuffle function
+
+```{r}
+shuffle_deck<-function(cards) { 
+  random<-sample(1:208, size = 208)
+  cards[random, ]
+}
+```
+
+## Start game
+
+**Chances calculation function **
+
+```{r}
+chances<-function(dealer_sum, player_sum,decks) {
+  min_range<-dealer_sum-player_sum
+  max_range<-21-player_sum
+  cards_range<-decks[decks$value <= max_range & decks$value >= min_range, "value"]
+  chances<-(length(cards_range)/nrow(decks))*100
+  }
+```
+
+**Start game function **
+
+```{r}
+start_game<-function(dealer,player,casino_deck) {
+  #shuffle deck
+  casino_deck<-shuffle_deck(casino_deck)
+  
+  #player's and dealer's hands
+  player<-casino_deck[1:2,]
+  casino_deck<-casino_deck[-(1:2),]
+  dealer<-casino_deck[1:2,]
+  casino_deck<-casino_deck[-(1:2),]
+  
+  #sums
+  player_sum<-sum(player$value)
+  dealer_sum<-sum(dealer$value)
+  
+  #chances
+  a=0
+  if (player_sum>=dealer_sum & player_sum<=21) {
+  a=100
+  } else if (player_sum>21) {
+  a=0
+  } else {
+    a<-chances(dealer_sum, player_sum,casino_deck)
+  }
+
+  #printing
+  cat(c("Dealers hand:","\n"))
+  print(dealer,row.names = FALSE, right = FALSE)
+  cat(c("sum",dealer_sum), fill = TRUE)
+  cat("\n")
+  cat(c("\n","Your hand:","\n"))
+  print(player,row.names = FALSE, right = FALSE)
+  cat(c("sum",player_sum,"\n"))
+  cat(c("chances",round(a),"%"))
+  
+  #return results
+  return(list(dealer,player,casino_deck))
+  
+}
+
+```
+
+
+## Deal function
+
+```{r}
+deal<-function(dealer,player,casino_deck) {
+  #player's hands
+  player<-rbind(player,casino_deck[1,])
+  casino_deck<-casino_deck[-1,]
+  
+  #sum
+  player_sum<-sum(player$value)
+  dealer_sum<-sum(dealer$value)
+  
+  #chances
+  a=0
+  if (player_sum>=dealer_sum & player_sum<=21) {
+  a=100
+  } else if (player_sum>21) {
+  a=0
+  } else {
+    a<-chances(dealer_sum, player_sum, casino_deck)
+  }
+  
+  #printing
+  cat(c("Dealers hand:","\n"))
+  print(dealer,row.names = FALSE, right = FALSE)
+  cat(c("sum",dealer_sum), fill = TRUE)
+  cat("\n")
+  cat(c("\n","Your hand:","\n"))
+  print(player,row.names = FALSE, right = FALSE)
+  cat(c("sum",player_sum,"\n"))
+  cat(c("chances",round(a),"%"))
+  
+  #return results
+  return(list(dealer,player,casino_deck)) 
+  
+}
+
+```
+
+## Stop game function
+
+```{r}
+stop_game<-function(dealer,player,casino_deck) {
+  #sum
+  player_sum<-sum(player$value)
+  dealer_sum<-sum(dealer$value)
+  
+  #win/loose
+  if (player_sum>=dealer_sum & player_sum<=21) {
+  cat("Result: Win")
+  } else {
+  cat("Result: Loose")
+  }
+}
+```
+
+## Games
+
+### Test game 1
+
+```{r}
+dealer<-dealer_emp
+player<-player_emp
+casino_deck<-decks
+```
+
+**start**
+
+```{r}
+test1_start<-start_game(dealer,player,casino_deck)
+```
+
+**deal**
+
+```{r}
+test1_deal<-deal(test1_start[[1]],test1_start[[2]],test1_start[[3]])
+```
+
+**stop**
+
+```{r}
+test1_b<-stop_game(test1_deal[[1]],test1_deal[[2]],test1_deal[[3]])
+```
+
+### Test game 2
+
+```{r}
+dealer<-dealer_emp
+player<-player_emp
+casino_deck<-decks
+```
+
+**start**
+
+```{r}
+test2_start<-start_game(dealer,player,casino_deck)
+```
+
+**deal**
+
+```{r}
+test2_deal<-deal(test2_start[[1]],test2_start[[2]],test2_start[[3]])
+```
+
+**stop**
+
+```{r}
+test1_b<-stop_game(test2_deal[[1]],test2_deal[[2]],test2_deal[[3]])
+```
